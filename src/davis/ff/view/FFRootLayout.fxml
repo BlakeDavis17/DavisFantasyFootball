@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1480.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="davis.ff.view.RootLayoutController">
+   <center>
+      <TableView fx:id="playerTable" editable="true" nodeOrientation="LEFT_TO_RIGHT" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="playerNameColumn" editable="false" prefWidth="100.0" resizable="false" style="-fx-background-color: white;" text="Player Name" />
+          <TableColumn fx:id="teamColumn" prefWidth="60.0" resizable="false" style="-fx-background-color: white;" text="Team" />
+            <TableColumn fx:id="positionColumn" prefWidth="60.0" resizable="false" style="-fx-background-color: white;" text="Position" />
+            <TableColumn fx:id="pointsScoredColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Points Scored" />
+            <TableColumn fx:id="rankColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Position Rank" />
+            <TableColumn fx:id="rushAttsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rush Atts" />
+            <TableColumn fx:id="rushYDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rush YDs" />
+            <TableColumn fx:id="rushTDsColumn" prefWidth="90.0" style="-fx-background-color: white;" text="Rush TDs" />
+            <TableColumn fx:id="receptionsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Receptions" />
+            <TableColumn fx:id="recYDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rec YDs" />
+            <TableColumn fx:id="recTDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rec TDs" />
+            <TableColumn fx:id="fumblesColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Fumbles" />
+            <TableColumn fx:id="passCompsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass Comps" />
+            <TableColumn fx:id="passAttsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass Atts" />
+            <TableColumn fx:id="passYDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass YDs" />
+            <TableColumn fx:id="passTDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass TDs" />
+            <TableColumn fx:id="interceptionsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Interceptions" />
+        </columns>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <cursor>
+            <Cursor fx:constant="DEFAULT" />
+         </cursor>
+      </TableView>
+   </center>
+   <top>
+      <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: teal;" BorderPane.alignment="CENTER">
+         <children>
+            <Text fill="WHITE" layoutX="502.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fantasy Football" textAlignment="CENTER" AnchorPane.leftAnchor="666.0" AnchorPane.rightAnchor="666.0" AnchorPane.topAnchor="20.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Text>
+            <Text fill="WHITE" layoutX="80.0" layoutY="113.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Position" wrappingWidth="54.544921875">
+               <font>
+                  <Font size="14.0" />
+               </font></Text>
+            <Text fill="WHITE" layoutX="93.0" layoutY="154.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Team  ">
+               <font>
+                  <Font size="14.0" />
+               </font></Text>
+            <ChoiceBox fx:id="teamPicker" layoutX="139.0" layoutY="137.0" prefHeight="25.0" prefWidth="155.0" style="-fx-background-color: white;" />
+            <Text fill="WHITE" layoutX="23.0" layoutY="75.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Player Last Name" wrappingWidth="113.3603515625">
+               <font>
+                  <Font size="14.0" />
+               </font></Text>
+            <HBox layoutX="139.0" layoutY="56.0" prefHeight="27.0" prefWidth="158.0">
+               <children>
+                  <TextField fx:id="filterField" prefHeight="25.0" prefWidth="157.0" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="139.0" layoutY="92.0" prefHeight="31.0" prefWidth="235.0" spacing="10.0">
+               <children>
+                  <RadioButton fx:id="qbBtn" mnemonicParsing="false" text="QB" textFill="WHITE" />
+                  <RadioButton fx:id="rbBtn" mnemonicParsing="false" text="RB" textFill="WHITE" />
+                  <RadioButton fx:id="wrBtn" mnemonicParsing="false" text="WR" textFill="WHITE" />
+                  <RadioButton fx:id="teBtn" mnemonicParsing="false" text="TE" textFill="WHITE" />
+                  <RadioButton fx:id="flexBtn" mnemonicParsing="false" text="FLEX" textFill="WHITE" />
+               </children>
+            </HBox>
+         </children>
+      </AnchorPane>
+   </top>
+</BorderPane>
