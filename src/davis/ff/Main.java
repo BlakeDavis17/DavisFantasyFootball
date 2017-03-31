@@ -8,6 +8,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 
 
@@ -16,7 +17,7 @@ public class Main extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 
-	//constructor
+	// Constructor
 		public Main() {
 			
 			
@@ -25,7 +26,11 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		this.primaryStage = primaryStage;
-		this.primaryStage.setTitle("Fantasy Football with Blake Davis");
+		this.primaryStage.setTitle("The Mecca of Fantasy Football");
+		
+		//set the application icon
+		this.primaryStage.getIcons().add(new Image("file:footballfire.jpg"));
+		
 		initRootLayout();
 		
 	}
@@ -36,15 +41,15 @@ public class Main extends Application {
 		return primaryStage;
 	}
 
-	//initializes root layout
+	// Initializes root layout
 	public void initRootLayout() {
 		try{
-			//Load root layout from fxml file
+			// Load root layout from fxml file
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(Main.class.getResource("view/FFRootLayout.fxml"));
 			rootLayout = loader.load();
 
-			//Show the scene containing the root layout
+			// Show the scene containing the root layout
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setScene(scene);
 			primaryStage.show();

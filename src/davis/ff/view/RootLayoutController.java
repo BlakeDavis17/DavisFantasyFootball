@@ -31,23 +31,28 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 
 public class RootLayoutController {
-	
-	//reference to main
+
+	// Reference to main
 	private Main main;
-	
+
 	private static List<Player> playerList = getPlayerListFromExcel();
-	
+
 	static private ObservableList<Player> playerListObs = FXCollections.observableArrayList(playerList);
-	
-	//filter variables
+
+	// Filter variables
 	private String nameF;
-	private String posF;
+	private String posF = null;
 	private String teamF;
+	// Boolean values state whether of not the value is matched
+	private Boolean matchName = false;
+	private Boolean matchPos = false;
+	private Boolean matchTeam = false;
 
 	@FXML
 	private TableView<Player> playerTable;
@@ -59,8 +64,6 @@ public class RootLayoutController {
 	private TableColumn<Player, String> positionColumn;
 	@FXML
 	private TableColumn<Player, Number> pointsScoredColumn;
-//	@FXML
-//	private TableColumn<Player, Number> rankColumn;
 	@FXML
 	private TableColumn<Player, Number> rushAttsColumn;
 	@FXML
@@ -85,12 +88,14 @@ public class RootLayoutController {
 	private TableColumn<Player, Number> passTDsColumn;
 	@FXML
 	private TableColumn<Player, Number> interceptionsColumn;
-	
-	//name filter
+
+	// Name filter
 	@FXML
 	private TextField filterField;
-	
-	//position filters
+
+	// Position filters
+	@FXML
+	private RadioButton allBtn;
 	@FXML
 	private RadioButton qbBtn;
 	@FXML
@@ -99,22 +104,22 @@ public class RootLayoutController {
 	private RadioButton wrBtn;
 	@FXML
 	private RadioButton teBtn;
-	@FXML
-	private RadioButton flexBtn;
 
-	
 	@FXML
 	private ChoiceBox<String> teamPicker;
-	
-	
-	//constructor
+
+	@FXML
+	private Button filterButton;
+
+
+	// Constructor
 	public RootLayoutController() {
 	}
-	
-	
+
+
 	@FXML
 	private void initialize() {
-		//assign each column to the corresponding field
+		// Assign each column to the corresponding field
 		playerNameColumn.setCellValueFactory(
 				cellData -> cellData.getValue().playerNameProperty());
 		teamColumn.setCellValueFactory(
@@ -122,7 +127,7 @@ public class RootLayoutController {
 		positionColumn.setCellValueFactory(
 				cellData -> cellData.getValue().positionProperty());
 		pointsScoredColumn.setCellValueFactory(
-			    cellData -> cellData.getValue().pointsScoredProperty());
+				cellData -> cellData.getValue().pointsScoredProperty());
 		rushAttsColumn.setCellValueFactory(
 				cellData -> cellData.getValue().rushAttsProperty());
 		rushYDsColumn.setCellValueFactory(
@@ -147,1031 +152,144 @@ public class RootLayoutController {
 				cellData -> cellData.getValue().passTDsProperty());
 		interceptionsColumn.setCellValueFactory(
 				cellData -> cellData.getValue().interceptionsProperty());
-			
-		
-		
-		// 1. Wrap the ObservableList in a FilteredList (initially display all data).
-		FilteredList<Player> filteredData = new FilteredList<>(playerListObs, p -> true);
-
-		// 2. Set the filter Predicate whenever the filter changes.
-		filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(player -> {
-				// If filter text is empty, display all persons.
-				if (newValue == null || newValue.isEmpty()) {
-					return true;
-				}
-
-				// Compare first name and last name of every person with filter text.
-				String lowerCaseFilter = newValue.toLowerCase();
-
-				if ((player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE")) && player.getPlayerName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
-					return true; // Filter matches first name.
-				} 
-				return false; // Does not match.
-			});
-		});
-
-		
-		filteredData.setPredicate(player -> {
-
-			if (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-					player.getPositionProp().equals("TE")) {
-				return true; // Filter matches position.
-			} 
-			return false; // Does not match.
-		});
-
 
 		teamPicker.setItems(FXCollections.observableArrayList(
-			    "All", "Ari", "Atl", "Bal", "Buf", "Car", "Chi", "Cin", "Cle", "Dal", "Den", "Det", "GB", "Hou", "Ind", "Jax", "KC", "LA", "Mia", "Min", "NE", "NO"
-			    , "NYG", "NYJ", "Oak", "Phi", "Pit", "SD", "Sea", "SF", "TB", "Ten", "Was")
-			);
-		
-		
-		teamPicker.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observableValue, Number number, Number number2) {
+				"ALL", "ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", "DET", "GB", "HOU", "IND", "JAX", "KC", "LA", "MIA", "MIN", "NE", "NO"
+				, "NYG", "NYJ", "OAK", "PHI", "PIT", "SD", "SEA", "SF", "TB", "TEN", "WAS")
+				);
+		teamPicker.setValue("ALL");
 
-				teamFilter();
-//				switch (teamPicker.getItems().get((Integer) number2)) {
-//
-//				case "All" :  {
-//					playerTable.setItems(filteredData);
-//					break;
-//				}
-//				case "Ari" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("ARI") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Atl" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("ATL") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Bal" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("BAL") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Buf" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("BUF") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Car" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("CAR") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Chi" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("CHI") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Cin" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("CIN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Cle" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("CLE") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Dal" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("DAL") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Den" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("DEN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Det" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("DET") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "GB" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("GB") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Hou" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("HOU") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Ind" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("IND") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Jax" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("JAX") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "KC" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("KC") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "LA" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("LA") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Mia" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("MIA") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Min" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("MIN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "NE" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("NE") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "NO" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("NO") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "NYG" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("NYG") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "NYJ" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("NYJ") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Oak" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("OAK") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Phi" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("PHI") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "Pit" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("PIT") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "SD" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("SD") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Sea" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("SEA") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "SF" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("SF") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});
-//					break;
-//				}
-//				case "TB" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("TB") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Ten" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("TEN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				case "Was" :  {
-//					filteredData.setPredicate(player -> {
-//
-//						if (player.getTeamProp().equals("WAS") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-//								player.getPositionProp().equals("TE"))) {
-//							return true; // Filter matches position.
-//						} 
-//						return false; // Does not match.
-//					});    	  				
-//					break;
-//				}
-//				}
-			}
-		});
-		
-		// 3. Wrap the FilteredList in a SortedList. 
-		SortedList<Player> sortedData = new SortedList<>(filteredData);
 
-		// Bind the SortedList comparator to the TableView comparator.
-		sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
-
-		// Bind the SortedList comparator to the TableView comparator.
-		sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
-
-		// 5. Add sorted (and filtered) data to the table.
-		playerTable.setItems(sortedData);
-
-	}
-	
-	//returns the list as an observable list of persons
-		public static ObservableList<Player> getObsPlayerData() {
-			return playerListObs;
-		}
-	
-	
-	
-	@FXML
-	private void showQBs(){
-		// Wrap the ObservableList in a FilteredList
-		FilteredList<Player> filteredData = new FilteredList<>(playerListObs, p -> true);
-		
-		filteredData.setPredicate(player -> {
-
-			if (player.getPositionProp().equals("QB")) {
-				return true; // Filter matches position.
-			} 
-			return false; // Does not match.
-		});
-
-		// 2. Set the filter Predicate whenever the filter changes.
-				filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-					filteredData.setPredicate(player -> {
-						// If filter text is empty, display all persons.
-						if (newValue == null || newValue.isEmpty() && player.getPositionProp().equals("QB")) {
-							return true;
-						}
-
-						// Compare first name and last name of every person with filter text.
-						String lowerCaseFilter = newValue.toLowerCase();
-
-						if (player.getPositionProp().equals("QB") && player.getPlayerName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
-							return true; // Filter matches first name.
-						} 
-						return false; // Does not match.
-					});
-				});
+		// Wrap the ObservableList in a FilteredList (initially display all data).
+		FilteredList<Player> filteredData = new FilteredList<>(playerListObs, player -> (player.getPosition().equals("QB") || player.getPosition().equals("RB") || 
+				player.getPosition().equals("WR") || player.getPosition().equals("TE")));
 
 
 		// Wrap the FilteredList in a SortedList. 
 		SortedList<Player> sortedData = new SortedList<>(filteredData);
-		
-		// Bind the SortedList comparator to the TableView comparator.
-		sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
-
-		// Add sorted and filtered data to the table.
-		playerTable.setItems(sortedData);
-
-	}
-	
-	@FXML
-	private void showRBs(){
-		// Wrap the ObservableList in a FilteredList
-		FilteredList<Player> filteredData = new FilteredList<>(playerListObs, p -> true);
-
-		filteredData.setPredicate(player -> {
-
-			if (player.getPositionProp().equals("RB")) {
-				return true; // Filter matches position.
-			} 
-			return false; // Does not match.
-		});
-		
-		// 2. Set the filter Predicate whenever the filter changes.
-				filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-					filteredData.setPredicate(player -> {
-						// If filter text is empty, display all persons.
-						if (newValue == null || newValue.isEmpty() && player.getPositionProp().equals("RB")) {
-							return true;
-						}
-
-						// Compare first name and last name of every person with filter text.
-						String lowerCaseFilter = newValue.toLowerCase();
-
-						if (player.getPositionProp().equals("RB") && player.getPlayerName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
-							return true; // Filter matches first name.
-						} 
-						return false; // Does not match.
-					});
-				});
-
-		// Wrap the FilteredList in a SortedList. 
-		SortedList<Player> sortedData = new SortedList<>(filteredData);
 
 		// Bind the SortedList comparator to the TableView comparator.
 		sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
 
-		// Add sorted and filtered data to the table.
-		playerTable.setItems(sortedData);
-		
-	}
-	
-	@FXML
-	private void showWRs(){
-		// Wrap the ObservableList in a FilteredList
-		FilteredList<Player> filteredData = new FilteredList<>(playerListObs, p -> true);
-
-		filteredData.setPredicate(player -> {
-
-			if (player.getPositionProp().equals("WR")) {
-				return true; // Filter matches position.
-			} 
-			return false; // Does not match.
-		});
-
-		// 2. Set the filter Predicate whenever the filter changes.
-		filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(player -> {
-				// If filter text is empty, display all persons.
-				if (newValue == null || newValue.isEmpty() && player.getPositionProp().equals("WR")) {
-					return true;
-				}
-
-				// Compare first name and last name of every person with filter text.
-				String lowerCaseFilter = newValue.toLowerCase();
-
-				if (player.getPositionProp().equals("WR") && player.getPlayerName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
-					return true; // Filter matches first name.
-				} 
-				return false; // Does not match.
-			});
-		});
-
-		// Wrap the FilteredList in a SortedList. 
-		SortedList<Player> sortedData = new SortedList<>(filteredData);
-
 		// Bind the SortedList comparator to the TableView comparator.
 		sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
 
-		// Add sorted and filtered data to the table.
+		// Add sorted (and filtered) data to the table.
 		playerTable.setItems(sortedData);
-		
+
 	}
 	
+	
+	// Filter method
+	/**
+	 * Filter method called by the filter button
+	 */
 	@FXML
-	private void showTEs(){
-		// Wrap the ObservableList in a FilteredList
-		FilteredList<Player> filteredData = new FilteredList<>(playerListObs, p -> true);
-
-		filteredData.setPredicate(player -> {
-
-			if (player.getPositionProp().equals("TE")) {
-				return true; // Filter matches position.
-			} 
-			return false; // Does not match.
-		});
-
-		// 2. Set the filter Predicate whenever the filter changes.
-		filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(player -> {
-				// If filter text is empty, display all persons.
-				if (newValue == null || newValue.isEmpty() && player.getPositionProp().equals("TE")) {
-					return true;
-				}
-
-				// Compare first name and last name of every person with filter text.
-				String lowerCaseFilter = newValue.toLowerCase();
-
-				if (player.getPositionProp().equals("TE") && player.getPlayerName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
-					return true; // Filter matches first name.
-				} 
-				return false; // Does not match.
-			});
-		});
-
-		// Wrap the FilteredList in a SortedList. 
-		SortedList<Player> sortedData = new SortedList<>(filteredData);
-
-		// Bind the SortedList comparator to the TableView comparator.
-		sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
-
-		// Add sorted and filtered data to the table.
-		playerTable.setItems(sortedData);
+	private void filterIt(){
+		// Set nameFilterValue to filterField text input
+		nameF = filterField.getText().toLowerCase();
 		
+		// Set teamFilterValue to the value of the teamPicker
+		teamF = teamPicker.getValue().toUpperCase();
+
+		// Toggle group of position buttons
+		ToggleGroup group = new ToggleGroup();
+		allBtn.setToggleGroup(group);
+		qbBtn.setToggleGroup(group);
+		rbBtn.setToggleGroup(group);
+		wrBtn.setToggleGroup(group);
+		teBtn.setToggleGroup(group);
+
+		// Buttons set positionFilterValue to coordinating position
+		if (allBtn.isSelected()){
+			posF = null;
+		}
+		if (qbBtn.isSelected()){
+			posF = "QB";
+		}
+		if (rbBtn.isSelected()){
+			posF = "RB";
+		}
+		if (wrBtn.isSelected()){
+			posF = "WR";
+		}
+		if (teBtn.isSelected()){
+			posF = "TE";
+		}
+
+		
+		if (posF != null){
+			// Wrap the ObservableList in a FilteredList
+			FilteredList<Player> filteredData = new FilteredList<>(playerListObs, player -> (player.getPlayerName().toLowerCase().contains(nameF) && player.getPosition().equals(posF) && player.getTeam().equals(teamF)));
+			
+			// Wrap the FilteredList in a SortedList. 
+			SortedList<Player> sortedData = new SortedList<>(filteredData);
+
+			// Bind the SortedList comparator to the TableView comparator.
+			sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
+
+			// Add sorted and filtered data to the table.
+			playerTable.setItems(sortedData);
+		}
+		
+		if (posF == null){
+			// Wrap the ObservableList in a FilteredList
+			FilteredList<Player> filteredData = new FilteredList<>(playerListObs, player -> (player.getPlayerName().toLowerCase().contains(nameF) && 
+					(player.getPosition().equals("QB") || player.getPosition().equals("RB") || player.getPosition().equals("WR") || player.getPosition().equals("TE")) 
+					&& player.getTeam().equals(teamF)));
+			
+			// Wrap the FilteredList in a SortedList. 
+			SortedList<Player> sortedData = new SortedList<>(filteredData);
+
+			// Bind the SortedList comparator to the TableView comparator.
+			sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
+
+			// Add sorted and filtered data to the table.
+			playerTable.setItems(sortedData);
+		}
+
+		if (teamF == "ALL"){
+			// Wrap the ObservableList in a FilteredList
+			FilteredList<Player> filteredData = new FilteredList<>(playerListObs, player -> (player.getPlayerName().toLowerCase().contains(nameF) && 
+					player.getPosition().equals(posF)));
+			// Wrap the FilteredList in a SortedList. 
+			SortedList<Player> sortedData = new SortedList<>(filteredData);
+
+			// Bind the SortedList comparator to the TableView comparator.
+			sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
+
+			// Add sorted and filtered data to the table.
+			playerTable.setItems(sortedData);
+		}
+		
+		if (posF == null && teamF == "ALL"){
+			// Wrap the ObservableList in a FilteredList
+			FilteredList<Player> filteredData = new FilteredList<>(playerListObs, player -> (player.getPlayerName().toLowerCase().contains(nameF) && 
+					(player.getPosition().equals("QB") || player.getPosition().equals("RB") || player.getPosition().equals("WR") || player.getPosition().equals("TE"))));
+			// Wrap the FilteredList in a SortedList. 
+			SortedList<Player> sortedData = new SortedList<>(filteredData);
+
+			// Bind the SortedList comparator to the TableView comparator.
+			sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
+
+			// Add sorted and filtered data to the table.
+			playerTable.setItems(sortedData);
+		}
+
 	}
-	
-	@FXML
-	private void showFlex(){
-		// Wrap the ObservableList in a FilteredList
-		FilteredList<Player> filteredData = new FilteredList<>(playerListObs, p -> true);
 
-		filteredData.setPredicate(player -> {
-
-			if (player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-					player.getPositionProp().equals("TE")) {
-				return true; // Filter matches position.
-			} 
-			return false; // Does not match.
-		});
-
-		// 2. Set the filter Predicate whenever the filter changes.
-		filterField.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(player -> {
-				// If filter text is empty, display all persons.
-				if (newValue == null || newValue.isEmpty() && (player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-					player.getPositionProp().equals("TE"))) {
-					return true;
-				}
-
-				// Compare first name and last name of every person with filter text.
-				String lowerCaseFilter = newValue.toLowerCase();
-
-				if ((player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE")) && player.getPlayerName().toLowerCase().indexOf(lowerCaseFilter) != -1) {
-					return true; // Filter matches first name.
-				} 
-				return false; // Does not match.
-			});
-		});
-
-		// Wrap the FilteredList in a SortedList. 
-		SortedList<Player> sortedData = new SortedList<>(filteredData);
-
-		// Bind the SortedList comparator to the TableView comparator.
-		sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
-
-		// Add sorted and filtered data to the table.
-		playerTable.setItems(sortedData);
-		
+	// Returns the list as an observable list of persons
+	public static ObservableList<Player> getObsPlayerData() {
+		return playerListObs;
 	}
-	
-	@FXML
-	private void teamFilter(){
-		// Wrap the ObservableList in a FilteredList
-				FilteredList<Player> filteredData = new FilteredList<>(playerListObs, p -> true);
-				
-				
-		switch (teamPicker.getValue()) {
 
-		case "All" :  {
-			playerTable.setItems(filteredData);
-			break;
-		}
-		case "Ari" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("ARI") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Atl" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("ATL") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Bal" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("BAL") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Buf" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("BUF") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Car" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("CAR") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Chi" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("CHI") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Cin" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("CIN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Cle" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("CLE") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Dal" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("DAL") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Den" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("DEN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Det" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("DET") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "GB" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("GB") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Hou" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("HOU") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Ind" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("IND") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Jax" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("JAX") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "KC" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("KC") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "LA" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("LA") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Mia" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("MIA") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Min" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("MIN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "NE" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("NE") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "NO" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("NO") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "NYG" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("NYG") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "NYJ" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("NYJ") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Oak" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("OAK") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Phi" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("PHI") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "Pit" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("PIT") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "SD" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("SD") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Sea" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("SEA") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "SF" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("SF") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});
-			break;
-		}
-		case "TB" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("TB") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Ten" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("TEN") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		case "Was" :  {
-			filteredData.setPredicate(player -> {
-
-				if (player.getTeamProp().equals("WAS") && (player.getPositionProp().equals("QB") || player.getPositionProp().equals("RB") || player.getPositionProp().equals("WR") || 
-						player.getPositionProp().equals("TE"))) {
-					return true; // Filter matches position.
-				} 
-				return false; // Does not match.
-			});    	  				
-			break;
-		}
-		}
-	
-		// 3. Wrap the FilteredList in a SortedList. 
-		SortedList<Player> sortedData = new SortedList<>(filteredData);
-		
-		
-// Bind the SortedList comparator to the TableView comparator.
-sortedData.comparatorProperty().bind(playerTable.comparatorProperty());
-
-// 5. Add sorted (and filtered) data to the table.
-playerTable.setItems(sortedData);
-
-		
-	}
-	
+	// Sets file path to Excel file with player data in it
 	private static final String FILE_PATH = "RegularSeason2016.xlsx";
-	
+
+	/**
+	 * Uses Apache POI to take Excel data and create player objects and put those into a list of players
+	 * @return playerList
+	 */
 	public static List<Player> getPlayerListFromExcel() {
 		List<Player> playerList = new ArrayList<Player>();
 
@@ -1185,146 +303,147 @@ playerTable.setItems(sortedData);
 
 			int numberOfSheets = workbook.getNumberOfSheets();
 
-			//looping over each workbook sheet
+			// Looping over each workbook sheet
 			for (int i = 0; i < numberOfSheets; i++) {
 				Sheet sheet = workbook.getSheetAt(i);
 				Iterator<?> rowIterator = sheet.iterator();
 
-				//iterating over each row
+				// Iterating over each row
 				while (rowIterator.hasNext() ) {
 
 					Player player = new Player();
 					Row row = (Row) rowIterator.next();
 					Iterator<?> cellIterator = row.cellIterator();
 
-					//Iterating over each cell (column wise) in a particular row.
+					// Iterating over each cell (column wise) in a particular row.
 					while (cellIterator.hasNext()) {
 
 						Cell cell = (Cell) cellIterator.next();
 						
+						// The cell containing string value will contain corresponding player string value
 						if (Cell.CELL_TYPE_STRING == cell.getCellType()) {
 							switch (cell.getColumnIndex()) {
-							
+
 							case 0: 
 								player.setPlayerName(String.valueOf(cell.getStringCellValue()));
 								player.setPlayerNameProp(player.getPlayerName());
-							break;
-							
+								break;
+
 							case 1:
 								player.setIdNumber(String.valueOf(cell.getStringCellValue()));
 								player.setIdNumberProp(player.getIdNumber());
-							break;
-							
+								break;
+
 							case 3:
 								player.setTeam(String.valueOf(cell.getStringCellValue()));
 								player.setTeamProp(player.getTeam());
-							break;
+								break;
 
 							case 4:
 								player.setPosition(String.valueOf(cell.getStringCellValue()));
 								player.setPositionProp(player.getPosition());
-							break;
+								break;
 							}
 
 
 
 
-							//The Cell Containing numeric value will contain marks
+						// The cell containing numeric value will contain corresponding player int value
 						} else if (Cell.CELL_TYPE_NUMERIC == cell.getCellType()) {
-							
+
 							switch (cell.getColumnIndex()) {
 
 							case 10:
 								player.setFumblesLost(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setFumblesLostProp(player.getFumblesLost());
-							break;
+								break;
 
 							case 12:
 								player.setFumblesTotal(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setFumblesTotalProp(player.getFumblesTotal());
-							break;
-							
+								break;
+
 
 							case 29:
 								player.setPassAtts(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setPassAttsProp(player.getPassAtts());
-							break;	
-							
+								break;	
+
 
 							case 30:
 								player.setPassComps(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setPassCompsProp(player.getPassComps());
-							break;
+								break;
 
 							case 31:
 								player.setInterceptions(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setInterceptionsProp(player.getInterceptions());
-							break;
+								break;
 
 							case 32:
 								player.setPassTDs(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setPassTDsProp(player.getPassTDs());
-							break;
+								break;
 
 							case 34:
 								player.setPassTwoPt(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setPassTwoPtProp(player.getPassTwoPt());
-							break;
+								break;
 
 							case 35:
 								player.setPassYDs(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setPassYDsProp(player.getPassYDs());
-							break;
+								break;
 
 							case 46:
 								player.setReceptions(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setReceptionsProp(player.getReceptions());
-							break;
+								break;
 
 							case 49:
 								player.setRecTDs(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setRecTDsProp(player.getRecTDs());
-							break;
+								break;
 
 							case 51:
 								player.setRecTwoPt(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setRecTwoPtProp(player.getRecTwoPt());
-							break;
+								break;
 
 							case 52:
 								player.setRecYDs(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setRecYDsProp(player.getRecYDs());
-							break;
+								break;
 
 							case 53:
 								player.setRushAtts(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setRushAttsProp(player.getRushAtts());
-							break;
+								break;
 
 							case 56:
 								player.setRushTDs(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setRushTDsProp(player.getRushTDs());
-							break;
+								break;
 
 							case 58:
 								player.setRushTwoPt(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setRushTwoPtProp(player.getRushTwoPt());
-							break;
+								break;
 
 							case 59:
 								player.setRushYDs(Integer.valueOf((int) cell.getNumericCellValue()));
 								player.setRushYDsProp(player.getRushYDs());
-							break;
+								break;
 
-						} 
-						//make into final values\/	
-						player.setPointsScored((player.getPassYDs()/25)+(player.getPassTDs()*4)+(player.getInterceptions()*-2)+(player.getPassTwoPt()*2)
-								+(player.getRushYDs()/10)+(player.getRushTDs()*6)+(player.getRushTwoPt()*2)+(player.getRecYDs()/10)+(player.getRecTDs()*6)+(player.getRecTwoPt()*2));
-						player.setPointsScoredProp(player.getPointsScored());
+							} 
+							//converting statistics to fantasy points	
+							player.setPointsScored((player.getPassYDs()/25)+(player.getPassTDs()*4)+(player.getInterceptions()*-2)+(player.getPassTwoPt()*2)
+									+(player.getRushYDs()/10)+(player.getRushTDs()*6)+(player.getRushTwoPt()*2)+(player.getRecYDs()/10)+(player.getRecTDs()*6)+(player.getRecTwoPt()*2));
+							player.setPointsScoredProp(player.getPointsScored());
 						}
 					}
 
-					//end iterating a row, add all the elements of a row in list
+					// End iterating a row, add all the elements of a row in list
 					playerList.add(player);
 				}
 			}
@@ -1337,51 +456,17 @@ playerTable.setItems(sortedData);
 		}
 		return playerList;
 	}
-	
-	
-	
+
+
 	/**
-     * Is called by the main application to give a reference back to itself.
-     * 
-     * @param mainApp
-     */
-    public void setMain(Main main) {
-        this.main = main;
+	 * Is called by the main application to give a reference back to itself.
+	 * @param main
+	 *
+	 */
+	public void setMain(Main main) {
+		this.main = main;
 
-        // Add observable list data to the table
-        //playerTable.setItems(main.getObsPlayerData());
-        
-        //teamPicker.setItems(main.get);
-    }
-	
-	private void filterIt(){
-		nameF = filterField.getText();
-		
-		ToggleGroup group = new ToggleGroup();
-		qbBtn.setToggleGroup(group);
-		rbBtn.setToggleGroup(group);
-		wrBtn.setToggleGroup(group);
-		teBtn.setToggleGroup(group);
-		flexBtn.setToggleGroup(group);
-
-		
-		if (qbBtn.isPressed()){
-			posF = "QB";
-		}
-		if (rbBtn.isPressed()){
-			posF = "RB";
-		}
-		if (wrBtn.isPressed()){
-			posF = "WR";
-		}
-		if (teBtn.isPressed()){
-			posF = "TE";
-		}
-		if (flexBtn.isPressed()){
-			posF = "FLEX";
-		}
-
-
-		
 	}
+
+
 }

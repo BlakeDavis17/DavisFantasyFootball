@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableColumn?>
@@ -13,27 +14,26 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1480.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="davis.ff.view.RootLayoutController">
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="davis.ff.view.RootLayoutController">
    <center>
-      <TableView fx:id="playerTable" editable="true" nodeOrientation="LEFT_TO_RIGHT" BorderPane.alignment="CENTER">
+      <TableView fx:id="playerTable" editable="true" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT">
         <columns>
-          <TableColumn fx:id="playerNameColumn" editable="false" prefWidth="100.0" resizable="false" style="-fx-background-color: white;" text="Player Name" />
-          <TableColumn fx:id="teamColumn" prefWidth="60.0" resizable="false" style="-fx-background-color: white;" text="Team" />
-            <TableColumn fx:id="positionColumn" prefWidth="60.0" resizable="false" style="-fx-background-color: white;" text="Position" />
-            <TableColumn fx:id="pointsScoredColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Points Scored" />
-            <TableColumn fx:id="rankColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Position Rank" />
-            <TableColumn fx:id="rushAttsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rush Atts" />
-            <TableColumn fx:id="rushYDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rush YDs" />
-            <TableColumn fx:id="rushTDsColumn" prefWidth="90.0" style="-fx-background-color: white;" text="Rush TDs" />
-            <TableColumn fx:id="receptionsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Receptions" />
-            <TableColumn fx:id="recYDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rec YDs" />
-            <TableColumn fx:id="recTDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rec TDs" />
-            <TableColumn fx:id="fumblesColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Fumbles" />
-            <TableColumn fx:id="passCompsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass Comps" />
-            <TableColumn fx:id="passAttsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass Atts" />
-            <TableColumn fx:id="passYDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass YDs" />
-            <TableColumn fx:id="passTDsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass TDs" />
-            <TableColumn fx:id="interceptionsColumn" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Interceptions" />
+          <TableColumn fx:id="playerNameColumn" editable="false" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="100.0" resizable="false" style="-fx-background-color: white;" text="Player Name" />
+          <TableColumn fx:id="teamColumn" maxWidth="1.7976931348623157E308" prefWidth="60.0" resizable="false" style="-fx-background-color: white;" text="Team" />
+            <TableColumn fx:id="positionColumn" maxWidth="1.7976931348623157E308" prefWidth="60.0" resizable="false" style="-fx-background-color: white;" text="Position" />
+            <TableColumn fx:id="pointsScoredColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Points Scored" />
+            <TableColumn fx:id="rushAttsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rush Atts" />
+            <TableColumn fx:id="rushYDsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rush YDs" />
+            <TableColumn fx:id="rushTDsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" style="-fx-background-color: white;" text="Rush TDs" />
+            <TableColumn fx:id="receptionsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Receptions" />
+            <TableColumn fx:id="recYDsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rec YDs" />
+            <TableColumn fx:id="recTDsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Rec TDs" />
+            <TableColumn fx:id="fumblesColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Fumbles" />
+            <TableColumn fx:id="passCompsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass Comps" />
+            <TableColumn fx:id="passAttsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass Atts" />
+            <TableColumn fx:id="passYDsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass YDs" />
+            <TableColumn fx:id="passTDsColumn" maxWidth="1.7976931348623157E308" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Pass TDs" />
+            <TableColumn fx:id="interceptionsColumn" maxWidth="-1.0" minWidth="90.0" prefWidth="90.0" resizable="false" style="-fx-background-color: white;" text="Interceptions" />
         </columns>
          <BorderPane.margin>
             <Insets />
@@ -44,9 +44,9 @@
       </TableView>
    </center>
    <top>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: teal;" BorderPane.alignment="CENTER">
+      <AnchorPane maxWidth="-Infinity" minWidth="1400.0" prefHeight="200.0" prefWidth="1400.0" style="-fx-background-color: teal;">
          <children>
-            <Text fill="WHITE" layoutX="502.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fantasy Football" textAlignment="CENTER" AnchorPane.leftAnchor="666.0" AnchorPane.rightAnchor="666.0" AnchorPane.topAnchor="20.0">
+            <Text fill="WHITE" layoutX="540.0" layoutY="49.0" strokeLineCap="ROUND" strokeType="OUTSIDE" strokeWidth="0.0" text="The Mecca of Fantasy Football" textAlignment="CENTER" AnchorPane.leftAnchor="540.0" AnchorPane.rightAnchor="539.36328125" AnchorPane.topAnchor="23.1015625">
                <font>
                   <Font size="24.0" />
                </font>
@@ -71,13 +71,14 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" layoutX="139.0" layoutY="92.0" prefHeight="31.0" prefWidth="235.0" spacing="10.0">
                <children>
+                  <RadioButton fx:id="allBtn" layoutX="10.0" layoutY="17.0" mnemonicParsing="false" text="All" textFill="WHITE" />
                   <RadioButton fx:id="qbBtn" mnemonicParsing="false" text="QB" textFill="WHITE" />
                   <RadioButton fx:id="rbBtn" mnemonicParsing="false" text="RB" textFill="WHITE" />
                   <RadioButton fx:id="wrBtn" mnemonicParsing="false" text="WR" textFill="WHITE" />
                   <RadioButton fx:id="teBtn" mnemonicParsing="false" text="TE" textFill="WHITE" />
-                  <RadioButton fx:id="flexBtn" mnemonicParsing="false" text="FLEX" textFill="WHITE" />
                </children>
             </HBox>
+            <Button fx:id="filterButton" layoutX="374.0" layoutY="136.0" mnemonicParsing="false" onAction="#filterIt" style="-fx-background-color: teal; -fx-border-color: white;" text="Filter" textFill="WHITE" />
          </children>
       </AnchorPane>
    </top>

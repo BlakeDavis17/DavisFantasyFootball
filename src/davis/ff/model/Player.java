@@ -6,10 +6,24 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 
-
+/**
+ * 
+ * @author Blake Davis
+ * Player model
+ * Creates fields for players and contains a default and overloaded constructor
+ * with getters and setters for each field
+ */
+/**
+ * @author Blake
+ *
+ */
+/**
+ * @author Blake
+ *
+ */
 public class Player {
 	
-	//player fields
+	// Player fields
 	private String playerName;
 	private String idNumber;
 	private String team;
@@ -57,7 +71,10 @@ public class Player {
 	
 
 
-	//default constructor
+	// Default constructor
+	/**
+	 * Default constructor
+	 */
 	public Player() {
 		playerName = "A";
 		idNumber = "B";
@@ -105,7 +122,30 @@ public class Player {
 	}
 
 	
-	//overloaded constructor
+	// Overloaded constructor
+	/**
+	 * Overloaded constructor
+	 * @param playerName
+	 * @param idNumber
+	 * @param team
+	 * @param position
+	 * @param fumblesLost
+	 * @param fumblesTotal
+	 * @param passAtts
+	 * @param passComps
+	 * @param interceptions
+	 * @param passTDs
+	 * @param passTwoPt
+	 * @param passYDs
+	 * @param receptions
+	 * @param recTDs
+	 * @param recTwoPt
+	 * @param recYDs
+	 * @param rushAtts
+	 * @param rushTDs
+	 * @param rushTwoPt
+	 * @param rushYDs
+	 */
 	public Player(String playerName, String idNumber, String team, String position, 
 			int fumblesLost, int fumblesTotal, int passAtts, int passComps, 
 			int interceptions, int passTDs, int passTwoPt, int passYDs, 
@@ -155,7 +195,10 @@ public class Player {
 		this.rushTwoPtProp = new SimpleIntegerProperty(rushTwoPt);
 		this.rushYDsProp = new SimpleIntegerProperty(rushYDs);
 	}
-
+	
+	/**
+	 * Prints the values of player fields
+	 */
 	@Override
     public String toString() {
         return playerName+ "{ id Number: "+idNumber+ " Team: "+team+" Total Points Scored: "+pointsScored+" Position: "
